@@ -59,7 +59,7 @@ public interface SecretManagerClient extends AutoCloseable {
      * Please notice: The input byte-array will be cleared after conversion.
      *
      * @param bytes input buffer
-     * @return characters array as utf8. Return an empty char-array if input is null or empty
+     * @return a char buffer as utf8. If the input is null or empty, an empty char-array is returned.
      *         the user is responsible for clearing a char-array copy.
      */
     static char[] safeCharArrayAsUTF8(final byte[] bytes) {
