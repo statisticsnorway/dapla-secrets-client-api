@@ -14,12 +14,34 @@ import java.util.Map;
 public interface SecretManagerClient extends AutoCloseable {
 
     /**
+     * Add a binary version of the secret.
+     *
+     * @param secretName  the name of the secret to add a version to.
+     * @param secretValue the value of the secret version.
+     * @return the version name
+     */
+    String addVersion(String secretName, byte[] secretValue);
+
+    /**
+     * Add a string version of the secret.
+     *
+     * @param secretName  the name of the secret to add a version to.
+     * @param secretValue the value of the secret version.
+     * @return the version name
+     */
+    default String addVersion(String secretName, String secretValue) {
+        return addVersion(secretName, secretValue.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
      * Read secret
      *
      * @param secretName
      * @return secret value as string
      */
-    String readString(String secretName);
+    default String readString(String secretName) {
+        return new String(readBytes(secretName), StandardCharsets.UTF_8);
+    }
 
     /**
      * Read secret for a specific version
@@ -28,7 +50,9 @@ public interface SecretManagerClient extends AutoCloseable {
      * @param secretVersion
      * @return secret value as string
      */
-    String readString(String secretName, String secretVersion);
+    default String readString(String secretName, String secretVersion) {
+        return new String(readBytes(secretName, secretVersion), StandardCharsets.UTF_8);
+    }
 
     /**
      * Read secret
@@ -36,7 +60,9 @@ public interface SecretManagerClient extends AutoCloseable {
      * @param secretName
      * @return secret value as byte-array
      */
-    byte[] readBytes(String secretName);
+    default byte[] readBytes(String secretName) {
+        return readBytes(secretName, null);
+    }
 
     /**
      * Read secret for a specific version
@@ -55,12 +81,12 @@ public interface SecretManagerClient extends AutoCloseable {
 
     /**
      * Convenience method that converts byte-array to char-array as UTF-8.
-     *
+     * <p>
      * Please notice: The input byte-array will be cleared after conversion.
      *
      * @param bytes input buffer
      * @return a char buffer as utf8. If the input is null or empty, an empty char-array is returned.
-     *         the user is responsible for clearing a char-array copy.
+     * the user is responsible for clearing a char-array copy.
      */
     static char[] safeCharArrayAsUTF8(final byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
